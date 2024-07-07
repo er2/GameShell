@@ -1,0 +1,38 @@
+# mte90 <mte90net@gmail.com>, 2022.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2022-05-27 16:53+0200\n"
+"Last-Translator: mte90 <mte90net@gmail.com>\n"
+"Language-Team: Italian <kde-i18n-it@kde.org>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 22.04.1\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#, sh-format
+msgid "$GSH_HOME/Castle/Main_tower/First_floor/Second_floor/Top_of_the_tower"
+msgstr ""
+"$GSH_HOME/Castello/Palazzo_principale/Primo_piano/Secondo_piano/Cima_della_tor"
+"re"
+
+# path for the text file containing the goal
+msgid "$MISSION_DIR/goal/en.txt"
+msgstr "$MISSION_DIR/goal/it.txt"
+
+# path for the text file containing the skip message
+msgid "$MISSION_DIR/skip/en.txt"
+msgstr "$MISSION_DIR/skip/it.txt"
+
+# path for the text file containing the treasure message
+msgid "$MISSION_DIR/treasure-msg/en.txt"
+msgstr "$MISSION_DIR/treasure-msg/it.txt"
+
+msgid "You are not at the top of the tower!"
+msgstr "Non sei in cima alla torre!"
+
+msgid "You need to start over from the start."
+msgstr "Devi ricominciare dall'inizio."

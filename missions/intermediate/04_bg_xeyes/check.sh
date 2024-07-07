@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 # fc in specified in POSIX, but debian's sh doesn't implement it!
 
@@ -23,9 +23,11 @@ _mission_check() {
   then
     echo "$(gettext "There is no 'xeyes' process running.")"
     ps -e | awk '/xeyes/ {print $1}' | xargs kill -9 2> /dev/null
-    false
+    rm -f "$tmp_file"
+    return 1
   else
-    true
+    rm -f "$tmp_file"
+    return 0
   fi
 }
 

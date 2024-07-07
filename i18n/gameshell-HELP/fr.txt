@@ -1,4 +1,4 @@
-Commandes propres a GameShell
+Commandes propres à GameShell
 =============================
 
 gsh assert condition [msg]
@@ -16,10 +16,11 @@ gsh auto                              (ADMIN)
 gsh check
   vérifie que l'objectif de la mission en cours est atteint
 
+gsh env
+  affiche les variables d'environnement internes
+
 gsh exit
-  quitte la partie en cours
-  (vous pouvez reprendre à la mission en cours en lançant le 
-  script start.sh avec l'option -C)
+  quitte (et sauvegarde) la partie en cours
 
 gsh goal [N]
   affiche l'objectif de la mission en cours
@@ -58,6 +59,9 @@ gsh reset
 
 gsh resetstatic
   re-génère toutes les parties statique du monde
+
+gsh save FICHIER
+  sauve la partie actuelle dans le fichier
 
 gsh skip                              (ADMIN)
   abandonne la mission en cours et passe à la suivante

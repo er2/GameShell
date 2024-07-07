@@ -1,7 +1,7 @@
-# GameShell : un "jeu" pour apprendre le shell Unix
-=================================================
+GameShell : un "jeu" pour apprendre le shell Unix
+===================================================
 
-![Illustration inspired by the game](art/illustration-small.png)
+![Illustration inspired by the game](Images/illustration-small.png)
 
 Enseigner l'utilisation d'un shell Unix à des étudiants de première année à
 l'université ou à des lycéens n'est pas toujours simple, ni très amusant.
@@ -15,6 +15,8 @@ un fichier de configuration qui définissait des "missions", qui seraient
 
 Voilà le résultat...
 
+![GameShell's first mission](Images/gameshell_first_mission_small.gif)
+
 N'hésitez pas à nous envoyer vos remarques, questions ou suggestions en
 ouvrant des ["issues"](https://github.com/phyver/GameShell/issues) ou en
 soumettant des ["pull requests"](https://github.com/phyver/GameShell/pulls).
@@ -24,11 +26,6 @@ pourriez créer !
 
 Comment jouer ?
 ---------------
-
-**Note:** GameShell est en phase de développement : la version courante n'a
-pas été intensivement testée par des étudiants. N'hésitez pas à rapporter tout
-problème que vous pourriez rencontrer et toute suggestion d'amélioration en
-ouvrant une ["issue"](https://github.com/phyver/GameShell/issues/new).
 
 GameShell devrait fonctionner sur n'importe quel système Linux standard, et
 aussi sur macOS et BSD (mais ces systèmes ont été moins testés). Sur Debian ou
@@ -57,7 +54,7 @@ directement dans le jeu.
 
 Quand vous quitterez le jeu (avec `control-d` ou la commande `gsh exit`) votre
 progression sera sauvegardée dans une nouvelle archive (nommée
-`GameShell-save.sh`). Elle peut être lancée pour reprendre le jeu où vous vous
+`gameshell-save.sh`). Elle peut être lancée pour reprendre le jeu où vous vous
 étiez arrêté.
 
 
@@ -127,7 +124,7 @@ GameShell est distribué sous la licence [GPLv3](https://www.gnu.org/licenses/gp
 Merci de pointer vers ce dépôt si vous l'utilisez.
 
 GameShell est open source et son utilisation est gratuite. Une manière de
-reconnaitre le travail que cela à nécessité est d'envoyer un carte postale à
+reconnaitre le travail que cela a nécessité est d'envoyer une carte postale à
 
 ```
   Pierre Hyvernat

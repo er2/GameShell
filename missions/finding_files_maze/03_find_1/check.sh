@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 _mission_check_p() (
     coin_name=$1
@@ -12,6 +12,7 @@ _mission_check_p() (
     fi
     if ! cmp -s "$coin" "$GSH_TMP/${coin_name}_$COIN_NB"
     then
+        coin_name=$(basename "$coin")
         echo "$(eval_gettext "Coin '\$coin_name' in your chest is invalid!")"
         return 1
     fi

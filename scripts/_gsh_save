@@ -1,0 +1,63 @@
+#!/usr/bin/env sh
+
+###
+# NOTE: this function should only be called after a "clean"
+
+[ -d "$GSH_ROOT" ] || exit 1
+
+if [ -d "$GSH_ROOT/.git" ]
+then
+  echo "Error: cannot save when running from the git repository." >&2
+  exit 1
+fi
+
+SAVEFILE=$1
+if [ -z "$SAVEFILE" ]
+then
+  echo "Error: gsh save requires a filename as argument." >&2
+  exit 2
+fi
+
+# case "$(cd "$(dirname "$SAVEFILE")"; pwd -P)" in
+#   "$GSH_ROOT"*)
+#     echo "Error: the savefile cannot be inside GameShell directory structure." >&2
+#     exit 4
+#     ;;
+# esac
+
+
+if ! [ -r "$GSH_ROOT" ]
+then
+  PROTECT=1
+  _gsh_unprotect
+fi
+
+if [ "$GSH_MODE" = "DEBUG" ]
+then
+  echo "[ saving progress to file $SAVEFILE ]"
+fi
+
+# record last checked mission
+GSH_LAST_CHECKED_MISSION=$(_gsh_plm)
+sed-i "s/^GSH_LAST_CHECKED_MISSION=.*/GSH_LAST_CHECKED_MISSION=$GSH_LAST_CHECKED_MISSION/" "$GSH_ROOT/lib/header.sh"
+
+tar --exclude="$SAVEFILE.tgz" -zcf "$SAVEFILE.tgz" -C "$(dirname "$GSH_ROOT")" "$(basename "$GSH_ROOT")"
+ARCHIVE_OK=$?
+
+cat "$GSH_ROOT/lib/header.sh" "$SAVEFILE.tgz" > "$SAVEFILE"
+SAVE_OK=$?
+chmod +x "$SAVEFILE"
+
+rm --system -f "$SAVEFILE.tgz"
+
+if [ "$ARCHIVE_OK" -ne 0 ] || [ "$SAVE_OK" -ne 0 ]
+then
+  echo "SAVEFILE MIGHT BE INCORRECT"
+fi
+
+if [ -n "$PROTECT" ]
+then
+  _gsh_protect
+fi
+
+

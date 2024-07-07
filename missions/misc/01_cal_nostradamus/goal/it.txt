@@ -1,0 +1,18 @@
+Obiettivi Missione
+============
+
+Nostradamus ha predetto una spettacolare congiunzione stellare il 
+$MM-$DD-$YYYY.
+Però quale sarà il giorno della settimana?
+
+Quando lo hai scoperto, esegui il comando ``gsh check``.
+
+
+Comandi utili
+===============
+
+cal
+  Stampa un calendario per il mese attuale.
+
+cal ANNO
+  Stampa un calendario per quell'anno.

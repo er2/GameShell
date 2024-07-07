@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 _mission_check() (
     pc=$(. fc-lnr.sh | head -n 1)
@@ -12,7 +12,6 @@ _mission_check() (
     fi
 
     temp_file=$(mktemp)
-    echo "pc=$pc"
     eval "$pc" | sort >"$temp_file"
     if cmp -s "$GSH_TMP/list_grimoires_GSH" "$temp_file"
     then

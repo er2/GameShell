@@ -17,10 +17,11 @@ gsh check
   check whether the current mission's goal has been achieved or 
   not
 
+gsh env
+  display internal environment variables
+
 gsh exit
-  quit GameShell
-  (you can start from the current mission by running the start.sh 
-  script with the "-C" flag)
+  quit (and save) the current game
 
 gsh goal [N]
   show the current mission's goal
@@ -58,6 +59,9 @@ gsh reset
 gsh resetstatic
   regenerate all the static parts of the world
 
+gsh save FILENAME
+  save the current game to file
+
 gsh skip                              (ADMIN)
   give up on the current mission and go to the next one
   (no password necessary if the mission was completed at least 
@@ -70,7 +74,7 @@ gsh systemconfig
   display the system configuration
 
 gsh test
-  run the curent mission's test script, if it exists
+  run the current mission's test script, if it exists
 
 gsh version
   show Gameshell's version

@@ -1,7 +1,7 @@
 GameShell: a "game" to teach the Unix shell
 ===========================================
 
-![Illustration inspired by the game](art/illustration-small.png)
+![Illustration inspired by the game](Images/illustration-small.png)
 
 Teaching first-year university students or high schoolers to use a Unix shell
 is not always the easiest or most entertaining of tasks. GameShell was devised
@@ -15,6 +15,12 @@ with an appropriate configuration file that defined "missions" which would be
 
 Here is the result...
 
+![GameShell's first mission](Images/gameshell_first_mission_small.gif)
+
+
+GameShell is available in English, French and Italian.
+
+
 Feel free to send us your remarks, questions or suggestions by opening
 [issues](https://github.com/phyver/GameShell/issues) or submitting
 [pull requests](https://github.com/phyver/GameShell/pulls).
@@ -23,11 +29,6 @@ We are particularly interested in any new missions you might create!
 
 Getting started
 ---------------
-
-**Note:** GameShell is currently undergoing heavy development: the current
-version has not been field tested by students. Do not hesitate to report any
-problems you might encounter or suggestions you might have by
-[opening an issue](https://github.com/phyver/GameShell/issues/new).
 
 GameShell should work on any standard Linux system, and also on macOS and BSD
 (but we have run fewer tests on the latter systems). On Debian or Ubuntu, the
@@ -54,7 +55,7 @@ game from the downloaded archive. Instructions on how to play are provided in
 the game directly.
 
 Note that when you quit the game (with `control-d` or the command `gsh exit`)
-your progression will be saved in a new archive (called `GameShell-save.sh`).
+your progression will be saved in a new archive (called `gameshell-save.sh`).
 Run this archive to resume the game where you left it.
 
 
@@ -118,6 +119,23 @@ The game is currently being developed by:
 * Clovis Eberhart
 * Sébastien Tavenas
 * Tiemen Duvillard
+
+### Translation
+
+#### Italian Version
+
+* Daniele Scasciafratte (@mte90)
+* Paolo Mauri (@maupao)
+* Marco Ciampa (@ciampix)
+* Antonio Vivace (@avivace)
+* Lorenzo Millucci (@lmillucci)
+* Sirio Negri (@ziriuz84)
+* Domenico Mammola (@domenicomammola)
+* Leonardo Canello (@anulo2)
+* @michirod
+* @serhack
+* WhiteShield (@wshield05)
+* @gioisco
 
 ### Special thanks
 

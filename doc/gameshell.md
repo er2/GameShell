@@ -24,7 +24,7 @@ $ bash gameshell.sh
 ```
 
 Note that when you quit the game (with `control-d` or the command `gsh exit`)
-your progression will be saved in a new archive (called `GameShell-save.sh`).
+your progression will be saved in a new archive (called `gameshell-save.sh`).
 It can be run to resume the game where you left it.
 
 ### Using the start script in the source code
@@ -139,9 +139,9 @@ You can customize the archive with the following options
   GameShell will ask for the player's name and email. This is useful in the
   classroom as it makes it easier to link a game to the corresponding student.
   (The player can run the archive in anonymous mode with the `-A` option.)
-* `-p PASSWORD`: you can choose the admin password for the archive. This is
-  also useful in the classroom as we might not want the students to learn of
-  this password. :)
+* `--password PASSWORD`: you can choose the admin password for the archive.
+  This is also useful in the classroom as we might not want the students to
+  learn of this password. :)
 * `-a`: keep the automatic scripts. Some missions come with a script that
   automagically completes the missions. By default, those scripts are **not**
   included in the archive. Use `-a` if you want to keep them.

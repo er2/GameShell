@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 export GSH_ROOT="$(dirname "$0")/.."
 
@@ -20,7 +20,7 @@ EOH
 new_static_file() {
   MISSION_DIR="$1"
   cat <<'EOF' > "$MISSION_DIR"/static.sh
-#!/bin/sh
+#!/usr/bin/env sh
 
 # This file is not required: it is sourced once when initialising a GameShell
 # game, and whenever the corresponding missions is (re)started.
@@ -35,8 +35,8 @@ EOF
 new_goal_txt_file() {
   MISSION_DIR="$1"
   cat <<'EOF' > "$MISSION_DIR"/goal.txt
-This file or one of its more complex variants (refer to the documentation) is
-required.
+This file or one of its more complex variants (refer to the documentation) 
+is required.
 
 It is displayed in its entirety by the command
   $ gsh goal
@@ -51,7 +51,7 @@ EOF
 new_goal_gettext_file() {
   MISSION_DIR="$1"
   cat <<'EOF' > "$MISSION_DIR"/_goal.sh
-#!/bin/sh
+#!/usr/bin/env sh
 
 # This file is not required. It can be used to generate dynamic goal messages.
 # If you need that, rename the file to 'goal.sh'.
@@ -69,8 +69,8 @@ EOF
 Mission goal
 ============
 
-This file or one of its more complex variants (refer to the documentation) is
-required.
+This file or one of its more complex variants (refer to the documentation) 
+is required.
 
 It is displayed in its entirety by the command
   $ gsh goal
@@ -88,7 +88,7 @@ EOF
 new_init_file() {
   MISSION_DIR="$1"
   cat <<'EOF' > "$MISSION_DIR"/init.sh
-#!/bin/sh
+#!/usr/bin/env sh
 
 # This file is not required: it is sourced every time the mission is started.
 # Since it is sourced every time the mission is restarted, it can generate
@@ -108,7 +108,7 @@ new_init_file() {
 #
 # It typically looks like
 _mission_init() {
-  ...
+  # ...
 }
 _mission_init
 EOF
@@ -117,7 +117,7 @@ EOF
 new_check_file() {
   MISSION_DIR="$1"
   cat <<'EOF' > "$MISSION_DIR"/check.sh
-#!/bin/sh
+#!/usr/bin/env sh
 
 # This file is required. It is sourced when checking the goal of the mission
 # has been achieved.
@@ -130,7 +130,7 @@ new_check_file() {
 # It typically looks like
 
 _mission_check() {
-  ...
+  # ...
 }
 _mission_check
 EOF
@@ -139,7 +139,7 @@ EOF
 new_auto_file() {
   MISSION_DIR="$1"
   cat <<'EOF' > "$MISSION_DIR"/_auto.sh
-#!/bin/sh
+#!/usr/bin/env sh
 
 # This file is not required. When it exists, it is used to automatically
 # validate the mission. It should end with a succesful `gsh check` command.
@@ -152,7 +152,7 @@ EOF
 new_clean_file() {
   MISSION_DIR="$1"
   cat <<'EOF' > "$MISSION_DIR"/_clean.sh
-#!/bin/sh
+#!/usr/bin/env sh
 
 # This file is not required. When it exists, it is used to clean the mission,
 # for example on completion, or when restarting it.
@@ -166,7 +166,7 @@ EOF
 new_treasure_file() {
   MISSION_DIR="$1"
   cat <<'EOF' > "$MISSION_DIR"/_treasure.sh
-#!/bin/sh
+#!/usr/bin/env sh
 
 # This file is not required. When it exists, it is sourced on successfull
 # completion of the mission and is added to the global configuration.
@@ -188,16 +188,16 @@ EOF
 new_treasure_msg_file() {
   MISSION_DIR="$1"
   cat <<'EOF' > "$MISSION_DIR"/_treasure-msg.txt
-This file is not required. When it exists, it is displayed when sourcing the
-"treasure.sh" file. (If no "treasure.sh" file exists, this file will be
-ignored.)
+This file is not required. When it exists, it is displayed when sourcing 
+the "treasure.sh" file. (If no "treasure.sh" file exists, this file will 
+be ignored.)
 EOF
 }
 
 new_gettext_treasure_msg_file() {
   MISSION_DIR="$1"
   cat <<'EOF' > "$MISSION_DIR"/_treasure-msg.sh
-#!/bin/sh
+#!/usr/bin/env sh
 
 # This file is not required. It can be used to generate dynamic treasure
 # messages.
@@ -212,16 +212,16 @@ EOF
 
   mkdir "$MISSION_DIR/treasure-msg/"
   cat <<'EOF' > "$MISSION_DIR"/treasure-msg/en.txt
-This file is not required. When it exists, it is displayed when sourcing the
-"treasure.sh" file. (If no "treasure.sh" file exists, this file will be
-ignored.)
+This file is not required. When it exists, it is displayed when sourcing 
+the "treasure.sh" file. (If no "treasure.sh" file exists, this file will 
+be ignored.)
 EOF
 }
 
 new_test_file() {
   MISSION_DIR="$1"
   cat <<'EOF' > "$MISSION_DIR"/_test.sh
-#!/bin/sh
+#!/usr/bin/env sh
 
 # This file is not required: it is sourced by the command "gsh test" for
 # testing during development.

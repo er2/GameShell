@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 . gsh_gettext.sh
 
-VERSION='developpment version (1650956895)'
+GSH_VERSION='developpment version'
 
-echo "Gameshell $VERSION"
+echo "Gameshell $GSH_VERSION"
 
 echo
 

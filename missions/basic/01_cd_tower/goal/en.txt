@@ -19,6 +19,9 @@ ls
   Show a list of locations that are currently accessible.
   Remark: ``ls`` is an abbreviation of "list".
 
+gsh check
+  Check if the mission objective has been achieved.
+
 gsh reset
   Restart the mission from the beginning.
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ -n "$BASH_VERSION" ]
 then
@@ -24,38 +24,150 @@ else
   return 1
 fi
 
+GSH_VERSION='developpment version'
+GSH_LAST_CHECKED_MISSION=''
 
-ORIGINAL_FILENAME="$0"
-ORIGINAL_DIR=$(dirname "$0")
-
-# ORIGINAL_DIR shouldn't be empty but consist at least of a "." (as per POSIX).
+export GSH_EXEC_FILE=$(basename "$0")
+export GSH_EXEC_DIR=$(dirname "$0")
+GSH_EXEC_DIR=$(cd "$GSH_EXEC_DIR"; pwd -P)
+# GSH_EXEC_DIR shouldn't be empty but consist at least of a "." (as per POSIX).
 # just in case
-ORIGINAL_DIR=${ORIGINAL_DIR:-.}
+GSH_EXEC_DIR=${GSH_EXEC_DIR:-.}
 
-
-NB_LINES=$(awk '/^##START_OF_GAMESHELL_ARCHIVE##/ {print NR + 1; exit 0; }' "$ORIGINAL_FILENAME")
-
-for arg in "$@"
+while getopts ":hnPdDACRXUVqGL:KBZc:FS:" opt
 do
-  if [ "$arg" = "-X" ]
-  then
-    tail -n+"$NB_LINES" "$ORIGINAL_FILENAME" > "${ORIGINAL_FILENAME%.*}.tgz"
-    echo "Archive saved in ${ORIGINAL_FILENAME%.*}.tgz"
-    exit 0
-  elif [ "$arg" = "-K" ]
-  then
-    KEEP_DIR="true"
-  fi
+    case "$opt" in
+      V)
+        echo "Gameshell $GSH_VERSION"
+        if [ -n "$GSH_LAST_CHECKED_MISSION" ]
+        then
+          echo "saved game: [mission $GSH_LAST_CHECKED_MISSION] OK"
+        fi
+        exit 0
+        ;;
+      U)
+        TARGET="$GSH_EXEC_DIR/gameshell.sh"
+        TMPFILE="$GSH_EXEC_DIR/gameshell.sh$$"
+        if command -v wget >/dev/null
+        then
+          if wget -O "$TMPFILE" https://github.com/phyver/GameShell/releases/download/latest/gameshell.sh
+          then
+            mv "$TMPFILE" "$TARGET"
+            chmod +x "$TARGET"
+            echo "Latest version of GameShell downloaded to $GSH_EXEC_DIR/gameshell.sh"
+            exit 0
+          else
+            rm -f "$TMPFILE"
+            echo "Error: couldn't download or save the latest version of GameShell." >&2
+            exit 1
+          fi
+        elif command -v curl >/dev/null
+        then
+          if curl -fo "$TMPFILE" https://github.com/phyver/GameShell/releases/download/latest/gameshell.sh
+          then
+            mv "$TMPFILE" "$TARGET"
+            chmod +x "$TARGET"
+            echo "Latest version of GameShell downloaded to $GSH_EXEC_DIR/gameshell.sh"
+            exit 0
+          else
+            rm -f "$TMPFILE"
+            echo "Error: couldn't download or save the latest version of GameShell." >&2
+            exit 1
+          fi
+        fi
+        ;;
+      X)
+        GSH_EXTRACT="true"
+        ;;
+      K)
+        KEEP_DIR="true"
+        ;;
+      F)
+        GSH_FORCE="true"
+        ;;
+      h)
+        # used to avoid checking for more recent files
+        GSH_HELP="true"
+        ;;
+      '?')
+        echo "$0: invalid option '-$OPTARG'" >&2
+        echo "use $0 -h to get the list of available options" >&2
+        exit 1
+        ;;
+      *)
+        # ignore other options, they will be passed to start.sh
+        ;;
+    esac
 done
 
 
+# get extension
+EXT=${GSH_EXEC_FILE##*.}
 # remove extension (if present)
-GSH_NAME=${ORIGINAL_FILENAME%.*}
+GSH_NAME=${GSH_EXEC_FILE%.*}
 # remove "-save" suffix (if present)
-GSH_NAME=${GSH_NAME%-save}
+GSH_NAME=${GSH_NAME%-save*}
 GSH_NAME=$(basename "$GSH_NAME")
 
-GSH_ROOT=$ORIGINAL_DIR/$GSH_NAME
+
+if [ "$GSH_HELP" != "true" ] && [ "$GSH_FORCE" != "true" ]
+then
+  LAST_SAVEFILE=$(ls "$GSH_EXEC_DIR/$GSH_NAME-save"*".$EXT" 2>/dev/null | sort | tail -n 1)
+
+  if [ -n "$LAST_SAVEFILE" ] && [ "$GSH_EXEC_DIR/$GSH_EXEC_FILE" != "$LAST_SAVEFILE" ]
+  then
+    echo "Warning: there is a more recent savefile"
+    echo "You can"
+    echo "  (1) keep the given file ("$GSH_EXEC_FILE")"
+    echo "  (2) switch to the last savefile ($(basename "$LAST_SAVEFILE"))"
+    echo "  (3) abort"
+    echo
+    R=""
+    while [ "$R" != 1 ] && [ "$R" != 2 ] && [ "$R" != 3 ]
+    do
+      printf "What do you want to do? [123] "
+      read -r R
+    done
+  fi
+  case "$R" in
+    1)
+      # do nothing, continue normally
+      :
+      ;;
+    2)
+      GSH_EXEC_FILE=$(basename "$LAST_SAVEFILE")
+      export GSH_EXEC_DIR=$(dirname "$LAST_SAVEFILE")
+      GSH_EXEC_DIR=$(cd "$GSH_EXEC_DIR"; pwd -P)
+      # GSH_EXEC_DIR shouldn't be empty but consist at least of a "." (as per POSIX).
+      # just in case
+      GSH_EXEC_DIR=${GSH_EXEC_DIR:-.}
+
+      # remove extension (if present)
+      GSH_NAME=${GSH_EXEC_FILE%.*}
+      # remove "-save" suffix (if present)
+      GSH_NAME=${GSH_NAME%-save}
+      GSH_NAME=$(basename "$GSH_NAME")
+      ;;
+    3)
+      exit 0
+      ;;
+  esac
+fi
+
+
+NB_LINES=$(awk '/^##START_OF_GAMESHELL_ARCHIVE##/ {print NR + 1; exit 0; }' "$GSH_EXEC_DIR/$GSH_EXEC_FILE")
+
+
+if [ "$GSH_EXTRACT" = "true" ]
+then
+  echo $NB_LINES
+    tail -n+"$NB_LINES" "$GSH_EXEC_DIR/$GSH_EXEC_FILE" > "$GSH_EXEC_DIR/${GSH_EXEC_FILE%.*}.tgz"
+    echo "Archive saved in $GSH_EXEC_DIR/${GSH_EXEC_FILE%.*}.tgz"
+    exit 0
+fi
+
+
+GSH_ROOT=$GSH_EXEC_DIR/$GSH_NAME
 N=0
 while [ -e "$GSH_ROOT" ]
 do
@@ -79,7 +191,11 @@ fi
 # and add a safeguard so we can check we are not removing another directory
 touch "$GSH_ROOT/.gsh_root-$$"
 
-tail -n+"$NB_LINES" "$ORIGINAL_FILENAME" > "$GSH_ROOT/gameshell.tgz"
+# add a .save file so that we save the directory into a self extracting archive
+# when exiting
+touch "$GSH_ROOT/.save"
+
+tail -n+"$NB_LINES" "$GSH_EXEC_DIR/$GSH_EXEC_FILE" > "$GSH_ROOT/gameshell.tgz"
 tar -zx -C "$GSH_ROOT" -f "$GSH_ROOT/gameshell.tgz"
 rm "$GSH_ROOT/gameshell.tgz"
 
@@ -90,40 +206,10 @@ mv "$TMP_ROOT"/.[!.]* "$GSH_ROOT" 2>/dev/null
 rmdir "$TMP_ROOT"
 
 ###
-# save function
-_save() {
+# remove root directory, with some minor failsafe
+_remove_root() {
   trap - CHLD
   ret=$1
-
-  tar -zcf "$GSH_ROOT.tgz" -C "$ORIGINAL_DIR" ./"$GSH_ROOT"
-  ARCHIVE_OK=$?
-
-
-  # get extension
-  EXT=${ORIGINAL_FILENAME##*.}
-  # remove extension
-  ORIGINAL_FILENAME=${ORIGINAL_FILENAME%.*}
-  # remove "-save" suffix (if present), and add it again, with the extension
-  ORIGINAL_FILENAME=${ORIGINAL_FILENAME%-save}-save.$EXT
-
-  cat "$GSH_ROOT/lib/header.sh" "$GSH_ROOT.tgz" > "$ORIGINAL_FILENAME"
-  SAVE_OK=$?
-  chmod +x "$ORIGINAL_FILENAME"
-
-  # remove archive
-  rm -f "$GSH_ROOT.tgz"
-
-  if [ "$ARCHIVE_OK" -ne 0 ] || [ "$SAVE_OK" -ne 0 ]
-  then
-    echo
-    echo "*******************************************************"
-    echo "Error: save file might be incorrect, test it by running"
-    echo "    $ $current_shell \"$ORIGINAL_FILENAME\""
-    echo
-    echo "If that works as expected, you can remove the \"$GSH_ROOT\" directory."
-    echo
-    KEEP_DIR="true"
-  fi
 
   if [ "$KEEP_DIR" != "true" ]
   then
@@ -136,27 +222,27 @@ _save() {
     chmod -R 777 "$GSH_ROOT"
     rm -rf "$GSH_ROOT"
   fi
-
   exit "$ret"
 }
 
+
 ###
 # start GameShell
-# I want to run the _save command when the (only) child terminates
+# I want to run the _remove_root command when the (only) child terminates
 # In bash, I can trap SIGCHLD, but for some reason, we cannot trap SIGCHLD when
 # the main process receives SIGHUP (for example when the terminal is closed),
 # unless we trap SIGHUP as well. (Even an empty trap is OK.)
 #
-# This doesn't work for zsh, so I need to call _save explicitly. In the case of
+# This doesn't work for zsh, so I need to call _remove_root explicitly. In the case of
 # SIGHUP, the child is terminated and the main process continues normally, so
-# that _save is indeed executed...
+# that _remove_root is indeed executed...
 
 trap "" HUP SIGHUP
-trap '_save $?' CHLD
+trap '_remove_root $?' CHLD
 $current_shell "$GSH_ROOT/start.sh" -C "$@"
 
 # zsh doesn't receive SIGCHLD but seems to always continue, even in the case of
-# SIGHUP. We thus call _save explicitly.
-_save $?
+# SIGHUP. We thus call _remove_root explicitly.
+_remove_root $?
 
 ##START_OF_GAMESHELL_ARCHIVE##

@@ -74,8 +74,8 @@ msgstr[1]       "%d missions réussies :"
 #, awk-format
 msgid   "%d mission skipped:"
 msgid_plural    "%d missions skipped:"
-msgstr[0]       "%d mission réussie :"
-msgstr[1]       "%d missions réussies :"
+msgstr[0]       "%d mission sautée :"
+msgstr[1]       "%d missions sautées :"
 
 msgid   "AUTOMATICALLY GENERATED ON STARTUP -- DO NOT MODIFY"
 msgstr  "AUTOMATIQUEMENT GÉNÉRÉ AU DÉMARRAGE -- NE PAS MODIFIER"
@@ -121,6 +121,9 @@ msgid   "Error: no mission was found!\n"
         "Aborting."
 msgstr  "Erreur : aucune mission trouvée !\n"
         "Abandon."
+
+msgid   "Error: save mode can only be 'index', 'simple' or 'overwrite'"
+msgstr  "Erreur : le mode de sauvegarde ne peut être que 'index', 'simple' ou 'overwrite'"
 
 msgid   "Error: the 'goto' command requires a mission number as argument."
 msgstr  "Erreur : la commande 'goto' a besoin d'un numéro de mission en argument."
@@ -189,7 +192,7 @@ msgstr  "Le répertoire $GSH_CONFIG contient des méta-données provenant d'une 
         "Voulez vous les supprimer et commencer une nouvelle partie ? [o/N]"
 
 msgid   "The latest version of Gameshell is available at"
-msgstr  "La dernière version de Gameshell is disponible sur"
+msgstr  "La dernière version de Gameshell est disponible sur"
 
 msgid   "There are stopped jobs in your session.\n"
         "Those processes will be terminated.\n"
@@ -225,7 +228,7 @@ msgid   "While you are waiting, a caterpillar crawls by..."
 msgstr  "Pendant que vous attendez, une chenille passe..."
 
 msgid   "While you are waiting, a centipede crawls by..."
-msgstr  "Pendant que vous attendez, un mille pates passe..."
+msgstr  "Pendant que vous attendez, un mille-pattes passe..."
 
 msgid   "While you are waiting, a duck swims by..."
 msgstr  "Pendant que vous attendez, un canard passe..."
@@ -255,9 +258,12 @@ msgstr  "Pendant que vous attendez, un poisson fait des ronds..."
 msgid   "Y"
 msgstr  "O"
 
-#, fuzzy
-msgid   "You shouldn't run Gameshell as root!"
-msgstr  "Erreur: il ne faut pas lancer Gameshell avec l'utilisateur root !"
+msgid   "You left GameShell's directory structure. Use\n"
+        "    $ cd\n"
+        "to go back to the GameShell's starting directory."
+msgstr  "Vous avez quitté l'arborescence de Gameshell. Utilisez\n"
+        "    $ cd\n"
+        "pour revenir au répertoire initial de GameShell."
 
 msgid   "[Press space to continue, q to quit\\.]"
 msgstr  "[Appuyer sur la barre d'espace pour continuer, 'q' pour quitter\\.]"
@@ -297,6 +303,9 @@ msgstr  "test $nb_tests échoué"
 #, awk-format
 msgid   "total time: %s"
 msgstr  "temps total : %s"
+
+msgid   "use 'gsh help' to get a list of available commands"
+msgstr  "utilisez 'gsh help' pour obtenir une liste de commandes possibles"
 
 # abbreviation for "yes" (lowercase)
 msgid   "y"

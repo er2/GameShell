@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 export GSH_ROOT=$(dirname "$0")/..
-. $GSH_ROOT/lib/profile.sh
+. "$GSH_ROOT"/lib/profile.sh
 
 display_help() {
 cat <<EOH
@@ -9,21 +9,27 @@ $(basename "$0") [OPTIONS] [MISSIONS]
 create a GameShell standalone archive
 
 options:
-  -h          this message
+  -h              this message
 
-  -p ...      choose password for admin commands
-  -P          use the "passport mode" by default when running GameShell
-  -A          use the "anonymous mode" by default when running GameShell
-  -L LANGS    only keep the given languages (ex: -L 'en*,fr')
-  -E          only keep english as a language, not generating any ".mo" file
+  -p ...          choose password for admin commands
+  -P              use the "passport mode" by default when running GameShell
+  -A              use the "anonymous mode" by default when running GameShell
+  -L LANGS        only keep the given languages (ex: -L 'en*,fr')
+  -E              only keep english as a language, not generating any ".mo" file
+                  and not using gettext
 
-  -N ...      name of the archive / top directory (default: "gameshell")
+  -N ...          name of the archive / top directory (default: "gameshell")
 
-  -a          keep 'auto.sh' scripts for missions that have one
-  -t          keep 'test.sh' scripts for missions that have one
-  -z          keep tgz archive
+  -S simple
+  -S index
+  -S overwrite
+                  choose default savefile mode
 
-  -v          show the list of mission directories as they are being processed
+  -a              keep 'auto.sh' scripts for missions that have one
+  -t              keep 'test.sh' scripts for missions that have one
+  -z              keep tgz archive
+
+  -v              show the list of mission directories as they are being processed
 EOH
 }
 
@@ -35,7 +41,7 @@ keep_language() {
   do
     set +f  # enable globing
     case $filename in
-      $g )
+      "$g" )
         return 0
         ;;
     esac
@@ -51,12 +57,12 @@ KEEP_TEST=0
 DEFAULT_MODE="ANONYMOUS"
 KEEP_TGZ=0
 GENERATE_MO=1
-# KEEP_PO=1     # this is set to 1 if we generate .mo files. Setting it to 1 here
+KEEP_PO=0     # this is set to 1 if we generate .mo files. Setting it to 1 here
 # (or before generating .mo files) will keep the .po files
 LANGUAGES=""
 VERBOSE=
 
-while getopts ":hp:N:atPzL:Ev" opt
+while getopts "hp:N:atPzL:EvS:p:" opt
 do
   case $opt in
     h)
@@ -68,6 +74,17 @@ do
       ;;
     N)
       NAME=$OPTARG
+      ;;
+    S)
+      case "$OPTARG" in
+        "index" | "simple" | "overwrite")
+          GSH_SAVEFILE_MODE=$OPTARG
+          ;;
+        *)
+          echo "Error: save mode can only be 'index', 'simple' or 'overwrite'" >&2
+          exit 1
+          ;;
+      esac
       ;;
     a)
       KEEP_AUTO=1
@@ -88,11 +105,16 @@ do
       LANGUAGES=
       KEEP_PO=0
       GENERATE_MO=0
+      GSH_NO_GETTEXT=1
       ;;
     v)
       VERBOSE=1
       ;;
     *)
+      if [ "$_long_option" = "1" ]
+      then
+        OPTARG="-$opt"
+      fi
       echo "invalid option: '-$OPTARG'" >&2
       exit 1
       ;;
@@ -136,7 +158,9 @@ fi
 if ! make_index "$@" > "$TMP_DIR/$NAME/missions/index.txt"
 then
   echo "Error: archive.sh, couldn't make index.txt"
-  rm -rf "$TMP_DIR"
+  # --system makes GameShell use the standard rm utility instead of the "safe"
+  # rm implemented in scripts/rm
+  rm --system -rf "$TMP_DIR"
   exit 1
 fi
 
@@ -186,15 +210,23 @@ export GSH_ROOT="$TMP_DIR/$NAME"
 export GSH_MISSIONS="$GSH_ROOT/missions"
 
 
+# default GSH_NO_GETTEXT to 1 if -E was used
+if [ -n "$GSH_NO_GETTEXT" ]
+then
+  sed-i "s/^# export GSH_NO_GETTEXT=./export GSH_NO_GETTEXT=1/" "$GSH_ROOT/start.sh"
+fi
+
 # remove unwanted languages
 if [ -n "$LANGUAGES" ]
 then
   echo "removing unwanted languages"
-  find "$GSH_ROOT" -path "*/i18n/*.po" | while read po_file
+  find "$GSH_ROOT" -path "*/i18n/*.po" | while read -r po_file
   do
     if ! keep_language "${po_file%.po}" "$LANGUAGES"
     then
-      rm -f "$po_file"
+      # --system makes GameShell use the standard rm utility instead of the "safe"
+      # rm implemented in scripts/rm
+      rm --system -f "$po_file"
     fi
   done
 fi
@@ -216,7 +248,7 @@ then
     printf "."
 
     # all missions
-    while read MISSION_DIR
+    while read -r MISSION_DIR
     do
       case $MISSION_DIR in
         "" | "#"* )
@@ -253,21 +285,25 @@ echo "removing unnecessary files"
 (
   cd "$GSH_ROOT"
   # no need to use find -print0 / xargs -0 because GameShell won't have strange filenames.
-  find . -name "a.out" | xargs rm -f
-  find . -name "*~" | xargs rm -f
-  find . -name "_*.sh" | xargs rm -f
-  find . -name "Makefile" | xargs rm -f
-  find . -name "template.pot" | xargs rm -f
-  [ "$KEEP_PO" -eq 0 ] && find . -name "*.po" | xargs rm -f
-  [ "$KEEP_TEST" -ne 1 ] && find ./missions -name "test.sh" | xargs rm -f
-  [ "$KEEP_AUTO" -ne 1 ] && find ./missions -name auto.sh | xargs rm -f
+  # --system makes GameShell use the standard rm utility instead of the "safe"
+  # rm implemented in scripts/rm
+  find . -name "a.out" | xargs rm --system -f
+  find . -name "*~" | xargs rm --system -f
+  find . -name "_*.sh" | xargs rm --system -f
+  find . -name "Makefile" | xargs rm --system -f
+  find . -name "template.pot" | xargs rm --system -f
+  [ "$KEEP_PO" -eq 0 ] && find . -name "*.po" | xargs rm --system -f
+  [ "$KEEP_TEST" -ne 1 ] && find ./missions -name "test.sh" | xargs rm --system -f
+  [ "$KEEP_AUTO" -ne 1 ] && find ./missions -name auto.sh | xargs rm --system -f
 
-  # rm -f "$GSH_ROOT/scripts/boxes-data.awk" "$GSH_ROOT/utils/archive.sh"
+  # rm --system -f "$GSH_ROOT/scripts/boxes-data.awk" "$GSH_ROOT/utils/archive.sh"
 )
 
 # change admin password
 echo "setting admin password"
-ADMIN_HASH=$(checksum "$ADMIN_PASSWD")
+ADMIN_SALT=$("$GSH_ROOT"/scripts/random_string)
+ADMIN_HASH=$(checksum "$ADMIN_SALT $ADMIN_PASSWD")
+sed-i "s/^\\([[:blank:]]*\\)ADMIN_SALT=.*/\\1ADMIN_SALT='$ADMIN_SALT'/" "$GSH_ROOT/start.sh"
 sed-i "s/^\\([[:blank:]]*\\)ADMIN_HASH=.*/\\1ADMIN_HASH='$ADMIN_HASH'/" "$GSH_ROOT/start.sh"
 
 # choose default mode
@@ -281,11 +317,19 @@ case $DEFAULT_MODE in
     ;;
 esac
 
-# record version
-if git rev-parse --is-inside-work-tree >/dev/null
+# choose default savefile mode
+if [ -n "$GSH_SAVEFILE_MODE" ]
 then
-  VERSION=$(git describe --tags)
-  sed -i "s/^VERSION=.*/VERSION='$VERSION'/" "$GSH_ROOT/scripts/_gsh_version"
+  sed-i "s/^export GSH_SAVEFILE_MODE=.*$/export GSH_SAVEFILE_MODE='$GSH_SAVEFILE_MODE'/" "$GSH_ROOT/start.sh"
+fi
+
+# record version
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1
+then
+  GSH_VERSION=$(git describe --always --dirty)
+  sed-i "s/^GSH_VERSION=.*/GSH_VERSION='$GSH_VERSION'/" "$GSH_ROOT/scripts/_gsh_version"
+  sed-i "s/^GSH_VERSION=.*/GSH_VERSION='$GSH_VERSION'/" "$GSH_ROOT/lib/header.sh"
+  sed-i "s/^GSH_LAST_CHECKED_MISSION=.*/GSH_LAST_CHECKED_MISSION=''/" "$GSH_ROOT/lib/header.sh"
 fi
 
 # create archive
@@ -300,10 +344,14 @@ chmod +x "$OUTPUT_DIR/$NAME.sh"
 if [ "$KEEP_TGZ" = 0 ]
 then
   echo "removing tgz archive"
-  rm "$OUTPUT_DIR/$NAME.tgz"
+  # --system makes GameShell use the standard rm utility instead of the "safe"
+  # rm implemented in scripts/rm
+  rm --system "$OUTPUT_DIR/$NAME.tgz"
 fi
 
 echo "removing temporary directory"
-rm -rf "$TMP_DIR"
+# --system makes GameShell use the standard rm utility instead of the "safe"
+# rm implemented in scripts/rm
+rm --system -rf "$TMP_DIR"
 
 # vim: shiftwidth=2 tabstop=2 softtabstop=2

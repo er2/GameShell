@@ -8,20 +8,20 @@ des grimoires contenant le composé alchimique "gsh" (pour
 Attention, ce composé peut être écrit avec des lettres en minuscule 
 et majuscule mélangées.
 
-Certain grimoires sont cadenassés et vous n'avez pas la permission 
+Certains grimoires sont cadenassés et vous n'avez pas la permission 
 de les consulter. Ignorez les.
 
 Remarque
 --------
 
-Seule la liste des grimoires est demandée. Les composés alchimiques 
-ne doivent pas être affichés.
+Votre dernière commande doit afficher la liste des grimoires mentionnant 'gsh' 
+et rien d'autre.
+En particulier, vous ne devez pas afficher les composés chimiques eux même et 
+aucun message d'erreur de doit apparaitre.
 
 
 Commandes utiles
 ================
-
-On peut par contre rediriger les deux affichages indépendamment.
 
 grep CHAINE FICHIER1 ... FICHIERn
   Recherche une chaine dans les fichiers et affiche les lignes 
@@ -50,6 +50,6 @@ Explications
 
 Chaque commande peut écrire sur l'écran de deux manières :
   - affichage du résultat ("stdout")
-  - affichage des message d'erreur ("stderr")
+  - affichage des messages d'erreur ("stderr")
 On ne peut pas différencier ces affichages.
-
+On peut par contre rediriger les deux affichages indépendamment.

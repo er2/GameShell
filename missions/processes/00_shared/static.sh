@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 # for some unkwnown reason, `ps -o pid,ppid,comm` doesn't find any process
 # on the "macos-latest" image on github.
@@ -13,4 +13,3 @@ else
   # with additional options ps -ceo pid,ppid,comm
   copy_bin "$MISSION_DIR/my_ps-macos" "$GSH_ROOT/.sbin/my_ps"
 fi
-

@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 export HISTFILE="$GSH_CONFIG/history"
 export HISTSIZE=50000
@@ -6,7 +6,6 @@ export SAVEHIST=50000
 
 if ! [ -s "$HISTFILE" ]
 then
-  HISTFILE=0    # clear history
   . gsh_gettext.sh
   print -s "# $(gettext "START OF COMMANDS HISTORY")"
 fi
@@ -41,3 +40,10 @@ autoload -Uz compinit
 compinit -d "$GSH_CONFIG/zcompdump"
 # compinit -D  # no zcompdump file, slightly slower
 compdef '[ "$CURRENT" -le 2 ] && _values : check exit goal help index log reset resetstatic stat version welcome' gsh
+
+
+# print message when player wanders outside GameShell filesystem
+precmd() {
+  _check_pwd
+  _help_hint
+}

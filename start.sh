@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 # warning about "echo $(cmd)", used many times with echo "$(gettext ...)"
 # shellcheck disable=SC2005
@@ -14,6 +14,8 @@
 # shellcheck disable=SC2155
 
 
+export GSH_WORKING_DIR=$(pwd -P)
+
 export GSH_ROOT="$(dirname "$0")"
 # shellcheck source=scripts/gsh_gettext.sh
 . "$GSH_ROOT/scripts/gsh_gettext.sh"
@@ -27,12 +29,28 @@ display_help() {
 }
 
 
+# possible values: index, simple (default), overwrite
+export GSH_SAVEFILE_MODE="simple"
+export GSH_AUTOSAVE=1
 export GSH_COLOR="OK"
 GSH_MODE="ANONYMOUS"
+# if GSH_NO_GETTEXT is non-empty, gettext won't be used anywhere, the only language will thus be English
+# export GSH_NO_GETTEXT=1  # DO NOT CHANGE OR REMOVE THIS LINE, it is used by utils/archive.sh
 RESET=""
-while getopts ":hnPdDACRXqL:KBZc:" opt
+while getopts ":hnPdDACRXUVqGL:KBZc:FS:" opt
 do
   case $opt in
+    S)
+      case "$OPTARG" in
+        "index" | "simple" | "overwrite")
+          GSH_SAVEFILE_MODE=$OPTARG
+          ;;
+        *)
+          echo "$(gettext "Error: save mode can only be 'index', 'simple' or 'overwrite'")" >&2
+          exit 1
+          ;;
+      esac
+      ;;
     h)
       display_help
       exit 0
@@ -65,9 +83,20 @@ do
     L)
       export LANGUAGE="$OPTARG"     # only works on GNU systems
       ;;
-    X)
-      echo "$(gettext "Error: this option is only available from an executable archive!")" >&2
-      exit 1
+    G)
+      export GSH_NO_GETTEXT=1
+      ;;
+    V)
+      # when lib/header.sh sees the -V flag, it displays the version and exits,
+      # so the next case isn't used.
+      # this is only used when running GameShell directly from start.sh
+      if git rev-parse --is-inside-work-tree >/dev/null 2>&1
+      then
+        echo "GameShell $(git describe --always --dirty)"
+      fi
+
+      echo "run directly from start.sh"
+      exit 0;
       ;;
     B)
       export GSH_SHELL=bash
@@ -78,18 +107,23 @@ do
     c)
       GSH_COMMAND=$OPTARG
       ;;
-    K)
-      :  # used by the self-extracting archive
-      ;;
-    *)
+    '?')
       echo "$(eval_gettext "Error: invalid option: '-\$OPTARG'")" >&2
       exit 1
+      ;;
+    X | U)
+      echo "$(gettext "Error: this option is only available from an executable archive!")" >&2
+      exit 1
+      ;;
+    *)
+      :  # other options are used by the self-extracting archive and passed on
+         # we ignore them
       ;;
   esac
 done
 shift $((OPTIND - 1))
 
-if [ $(id -u) = 0 ]
+if [ $(id -u) -eq 0 ]
 then
   echo "$(gettext "Error: you shouldn't run Gameshell as root!")" >&2
   exit 1
@@ -187,7 +221,8 @@ progress_finish() {
 
 init_gsh() {
 
-  ADMIN_HASH='b88968dc60b003b9c188cc503a457101b4087109'    # default for 'gsh'
+  ADMIN_SALT='EsULESDXKFpLRjZcIRiVnazJfQcwQDEz'            # a random (but fixed) salt
+  ADMIN_HASH='cb1b87bc6282a94ff3f37eb47a2aa3dc069341d0'    # default for "$GSH_SALT gsh"
 
   # message when data from a previous play is found. We can either
   #    - restart a new game
@@ -222,7 +257,6 @@ Do you want to remove it and start a new game? [y/N]') "
 
   mkdir -p "$GSH_CONFIG"
   awk -v seed_file="$GSH_CONFIG/PRNG_seed" 'BEGIN { srand(); printf("%s", int(2^32 * rand())) > seed_file; }'
-  cp "$GSH_LIB/gshrc" "$GSH_CONFIG"
 
   # save current locale
   locale > "$GSH_CONFIG"/config.sh
@@ -230,7 +264,11 @@ Do you want to remove it and start a new game? [y/N]') "
   # TODO save other config (color ?)
 
   # save hash for admin password
-  [ -n "$ADMIN_HASH" ] && echo "$ADMIN_HASH" > "$GSH_CONFIG/admin_hash"
+  if [ -n "$ADMIN_HASH" ]
+  then
+    echo "$ADMIN_HASH" > "$GSH_CONFIG/admin_hash"
+    echo "$ADMIN_SALT" > "$GSH_CONFIG/admin_salt"
+  fi
 
   mkdir -p "$GSH_BIN"
   mkdir -p "$GSH_SBIN"
@@ -260,8 +298,8 @@ Do you want to remove it and start a new game? [y/N]') "
     _confirm_passport "$PASSPORT" && break
   done
 
-  printf '\n==========\nRANDOM=%d\n' $RANDOM >> "$PASSPORT"
-
+  # some random part added to the file so that GSH_UID is randomized
+  printf '==========\nrandom salt: %d\n' "$("$GSH_ROOT/scripts/RANDOM")" >> "$PASSPORT"
 
   # Generation of a unique identifier for the the player.
   export GSH_UID="$(checksum < "$PASSPORT" | cut -c 1-40)"
@@ -468,7 +506,16 @@ cd "$GSH_HOME"
 export GSH_UID=$(cat "$GSH_CONFIG/uid")
 date "+%Y-%m-%d %H:%M:%S" | sed 's/^/#>>> /' >> "$GSH_CONFIG/missions.log"
 
-# make sure the shell reads its config file by making it interactive (-i)
+# if the user uses a special TERMINFO entry, it might not be found because
+# GameShell redefines HOME
+if [ -z "$TERMINFO" ]
+then
+  export TERMINFO=$REAL_HOME/.terminfo
+else
+  # this might be run with sh, which doesn't have variable string substitution
+  TERMINFO=$(echo "$TERMINFO" | sed -e "s#~#$REAL_HOME#g")
+fi
+
 generate_rcfile
 if [ -n "$GSH_COMMAND" ]
 then
@@ -481,7 +528,7 @@ then
   # NOTE, the above works in bash, but when running the following script with
   # GSH_SHELL=zsh, it fails with "zsh: suspended (tty output)"
   # ======== script =======
-  # #!/bin/sh
+  # #!/usr/bin/env sh
   # ./gameshell.sh -qc "gsh exit"; ./gameshell.sh -qc "gsh exit"
   # =======================
   # FIX: don't start the shell in interactive mode, and source the rcfile
@@ -494,12 +541,15 @@ then
       RC_FILE=.zshrc
       ;;
   esac
+
+  # start GameShell
   exec $GSH_SHELL -c "export GSH_NON_INTERACTIVE=1
                        GSH_ROOT=\"$GSH_ROOT\"
                        . \"\$GSH_ROOT/lib/profile.sh\"
                        . \"\$GSH_HOME/$RC_FILE\"
                        $GSH_COMMAND"
 else
+  # start GameShell
   exec $GSH_SHELL
 fi
 
